@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CITIZEN
+  TECHNICIAN
+  ADMIN
+}
+
+enum UtilityType {
+  WATER
+  GAS
+  ELECTRICITY
+}
+
+enum ComplaintStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum ComplaintPriority {
+  NORMAL
+  HIGH
+  EMERGENCY
+}
+
+enum TechnicianStatus {
+  ACTIVE
+  BUSY
+  OFFLINE
+}
+
+enum RequestType {
+  ASSIGNMENT
+  HELP
+  REASSIGN
+  OTHER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  phone        String?
+  role         Role         @default(CITIZEN)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  complaints   Complaint[]  @relation("CitizenComplaints")
+  reviews      Review[]     @relation("CitizenReviews")
+  technician   Technician?
+}
+
+model Technician {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  skill              UtilityType
+  status             TechnicianStatus   @default(ACTIVE)
+  area               String?
+  distanceKm         Float?
+  etaMinutes         Int?
+  rating             Float              @default(5)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedComplaints Complaint[]         @relation("TechnicianAssignments")
+  reviews            Review[]
+  requests           TechnicianRequest[]
+}
+
+model Complaint {
+  id            String            @id @default(cuid())
+  token         String            @unique
+  title         String
+  description   String
+  type          UtilityType
+  area          String
+  address       String?
+  status        ComplaintStatus   @default(PENDING)
+  priority      ComplaintPriority @default(NORMAL)
+  position      Int               @default(1)
+  citizenId     String
+  technicianId  String?
+  photo         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  citizen       User              @relation("CitizenComplaints", fields: [citizenId], references: [id], onDelete: Cascade)
+  technician    Technician?       @relation("TechnicianAssignments", fields: [technicianId], references: [id], onDelete: SetNull)
+  statusHistory StatusHistory[]
+  review        Review?
+  requests      TechnicianRequest[]
+
+  @@index([status])
+  @@index([type])
+  @@index([priority])
+  @@index([area])
+}
+
+model Review {
+  id           String     @id @default(cuid())
+  complaintId  String     @unique
+  citizenId    String
+  technicianId String
+  rating       Int
+  comment      String?
+  createdAt    DateTime   @default(now())
+  complaint    Complaint  @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  citizen      User       @relation("CitizenReviews", fields: [citizenId], references: [id], onDelete: Cascade)
+  technician   Technician @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@index([technicianId])
+}
+
+model StatusHistory {
+  id          String          @id @default(cuid())
+  complaintId String
+  status      ComplaintStatus
+  note        String?
+  createdAt   DateTime        @default(now())
+  complaint   Complaint       @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+}
+
+model TechnicianRequest {
+  id           String        @id @default(cuid())
+  complaintId  String
+  technicianId String
+  type         RequestType   @default(ASSIGNMENT)
+  message      String
+  status       RequestStatus @default(PENDING)
+  adminNote    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  complaint    Complaint     @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  technician   Technician    @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([technicianId])
+}

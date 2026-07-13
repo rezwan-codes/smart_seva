@@ -11,6 +11,9 @@ export const toApiUser = (user) => ({
   email: user.email,
   phone: user.phone,
   role: enumToTitle(user.role),
+  latitude: user.latitude,
+  longitude: user.longitude,
+  locationUpdatedAt: user.locationUpdatedAt,
   technician: user.technician
     ? {
         id: user.technician.id,
@@ -20,6 +23,9 @@ export const toApiUser = (user) => ({
         distanceKm: user.technician.distanceKm,
         etaMinutes: user.technician.etaMinutes,
         rating: user.technician.rating,
+        latitude: user.technician.latitude,
+        longitude: user.technician.longitude,
+        locationUpdatedAt: user.technician.locationUpdatedAt,
       }
     : null,
 });
@@ -35,6 +41,9 @@ export const toApiTechnician = (technician) => ({
   distanceKm: technician.distanceKm,
   etaMinutes: technician.etaMinutes,
   rating: technician.rating,
+  latitude: technician.latitude,
+  longitude: technician.longitude,
+  locationUpdatedAt: technician.locationUpdatedAt,
 });
 
 export const toApiReview = (review) => ({
@@ -78,6 +87,8 @@ export const toApiComplaint = (complaint) => ({
   type: enumToTitle(complaint.type),
   area: complaint.area,
   address: complaint.address,
+  latitude: complaint.latitude,
+  longitude: complaint.longitude,
   status: enumToTitle(complaint.status),
   priority: enumToTitle(complaint.priority),
   position: complaint.position,

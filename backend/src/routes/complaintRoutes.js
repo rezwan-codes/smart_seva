@@ -12,6 +12,11 @@ const utilityTypes = ["WATER", "GAS", "ELECTRICITY"];
 const priorities = ["NORMAL", "HIGH", "EMERGENCY"];
 const statuses = ["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"];
 
+const parseCoordinate = (value) => {
+  const coordinate = Number(value);
+  return Number.isFinite(coordinate) ? coordinate : undefined;
+};
+
 const complaintInclude = {
   citizen: { include: { technician: true } },
   technician: { include: { user: true } },
@@ -112,6 +117,8 @@ router.post(
           type: complaintType,
           area,
           address,
+          latitude: parseCoordinate(req.body.latitude),
+          longitude: parseCoordinate(req.body.longitude),
           priority: complaintPriority,
           position: openCount + 1,
           citizenId: req.user.id,

@@ -14,6 +14,9 @@ export type Technician = {
   distanceKm?: number;
   etaMinutes?: number;
   rating: number;
+  latitude?: number | null;
+  longitude?: number | null;
+  locationUpdatedAt?: string | null;
 };
 
 export type UserRole = "Citizen" | "Technician" | "Admin";
@@ -25,6 +28,9 @@ export type User = {
   phone?: string;
   role: UserRole;
   technician?: Technician | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  locationUpdatedAt?: string | null;
 };
 
 export type StatusHistory = {
@@ -52,6 +58,8 @@ export type Complaint = {
   type: UtilityType;
   area: string;
   address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   status: ComplaintStatus;
   priority: ComplaintPriority;
   position: number;

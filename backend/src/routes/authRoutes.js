@@ -82,4 +82,39 @@ router.get("/me", requireAuth, (req, res) => {
   res.json({ user: toApiUser(req.user) });
 });
 
+router.patch("/location", requireAuth, async (req, res, next) => {
+  try {
+    const latitude = Number(req.body.latitude);
+    const longitude = Number(req.body.longitude);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return res.status(400).json({ message: "Valid latitude and longitude are required" });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: {
+        latitude,
+        longitude,
+        locationUpdatedAt: new Date(),
+        technician:
+          req.user.role === "TECHNICIAN" && req.user.technician
+            ? {
+                update: {
+                  latitude,
+                  longitude,
+                  locationUpdatedAt: new Date(),
+                },
+              }
+            : undefined,
+      },
+      include: { technician: true },
+    });
+
+    res.json({ user: toApiUser(user) });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

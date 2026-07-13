@@ -9,6 +9,7 @@ import CitizenDashboard from "../pages/citizen/Dashboard";
 import MyComplaints from "../pages/citizen/MyComplaints";
 import NewComplaint from "../pages/citizen/NewComplaint";
 import TechnicianDashboard from "../pages/technician/Dashboard";
+import MapPage from "../pages/MapPage";
 import NotFound from "../pages/NotFound";
 
 export default function AppRoutes() {
@@ -62,6 +63,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute roles={["technician"]}>
               <TechnicianDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/map"
+          element={
+            <ProtectedRoute roles={["citizen", "technician"]}>
+              <MapPage />
             </ProtectedRoute>
           }
         />

@@ -34,6 +34,11 @@ export const authService = {
     return data;
   },
 
+  async updateLocation(latitude: number, longitude: number): Promise<{ user: User }> {
+    const { data } = await api.patch("/auth/location", { latitude, longitude });
+    return data;
+  },
+
   logout() {
     localStorage.removeItem("smartUtilityToken");
   },

@@ -7,6 +7,8 @@ type CreateComplaintPayload = {
   type: UtilityType;
   area: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   priority?: ComplaintPriority;
   photo?: File | null;
 };
@@ -29,6 +31,8 @@ export const complaintService = {
     formData.append("type", payload.type);
     formData.append("area", payload.area);
     if (payload.address) formData.append("address", payload.address);
+    if (typeof payload.latitude === "number") formData.append("latitude", String(payload.latitude));
+    if (typeof payload.longitude === "number") formData.append("longitude", String(payload.longitude));
     if (payload.priority) formData.append("priority", payload.priority);
     if (payload.photo) formData.append("photo", payload.photo);
 

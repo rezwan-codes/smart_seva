@@ -58,28 +58,36 @@ model User {
   passwordHash String
   phone        String?
   role         Role         @default(CITIZEN)
+  latitude     Float?
+  longitude    Float?
+  locationUpdatedAt DateTime?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   complaints   Complaint[]  @relation("CitizenComplaints")
   reviews      Review[]     @relation("CitizenReviews")
   technician   Technician?
+  conversationsAsCitizen Conversation[] @relation("CitizenConversations")
 }
 
 model Technician {
-  id                 String             @id @default(cuid())
-  userId             String             @unique
-  skill              UtilityType
-  status             TechnicianStatus   @default(ACTIVE)
-  area               String?
-  distanceKm         Float?
-  etaMinutes         Int?
-  rating             Float              @default(5)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignedComplaints Complaint[]         @relation("TechnicianAssignments")
-  reviews            Review[]
-  requests           TechnicianRequest[]
+  id                     String             @id @default(cuid())
+  userId                 String             @unique
+  skill                  UtilityType
+  status                 TechnicianStatus   @default(ACTIVE)
+  area                   String?
+  distanceKm             Float?
+  etaMinutes             Int?
+  rating                 Float              @default(5)
+  latitude               Float?
+  longitude              Float?
+  locationUpdatedAt      DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedComplaints     Complaint[]        @relation("TechnicianAssignments")
+  reviews                Review[]
+  requests               TechnicianRequest[]
+  conversationsAsTechnician Conversation[] @relation("TechnicianConversations")
 }
 
 model Complaint {
@@ -90,6 +98,8 @@ model Complaint {
   type          UtilityType
   area          String
   address       String?
+  latitude      Float?
+  longitude     Float?
   status        ComplaintStatus   @default(PENDING)
   priority      ComplaintPriority @default(NORMAL)
   position      Int               @default(1)
@@ -149,4 +159,31 @@ model TechnicianRequest {
 
   @@index([status])
   @@index([technicianId])
+}
+
+model Conversation {
+  id           String    @id @default(cuid())
+  citizenId    String
+  technicianId String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  messages     Message[]
+  citizen      User       @relation("CitizenConversations", fields: [citizenId], references: [id], onDelete: Cascade)
+  technician   Technician @relation("TechnicianConversations", fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@index([citizenId])
+  @@index([technicianId])
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  senderId       String
+  senderRole     String
+  text           String
+  createdAt      DateTime    @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
 }
